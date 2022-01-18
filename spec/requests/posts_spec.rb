@@ -13,20 +13,32 @@
 # sticking to rails and rspec-rails APIs to keep things simple and stable.
 
 RSpec.describe "/posts", type: :request do
-  
+  current_user = User.first_or_create(email: 'testing@testing.com', password: 'testing', password_confirmation: "testing")
+
   # Post. As you add validations to Post, be sure to
   # adjust the attributes here as well.
-  let(:valid_attributes) {
-    skip("Add a hash of attributes valid for your model")
-  }
+  let(:valid_attributes) do 
+    {
+    'id' => '1',
+    'title' => 'Test',
+    'body' => '12345',
+    'user' => current_user
+    }
+    end
 
-  let(:invalid_attributes) {
-    skip("Add a hash of attributes invalid for your model")
-  }
+  let(:invalid_attributes) do 
+    {
+      'id' => 'a',
+      'title' => '1',
+      'body' => '1234'
+    }
+    end
 
   describe "GET /index" do
     it "renders a successful response" do
-      Post.create! valid_attributes
+      post = Post.new(valid_attributes)
+      post.user = current_user
+      post.save
       get posts_url
       expect(response).to be_successful
     end
@@ -34,7 +46,9 @@ RSpec.describe "/posts", type: :request do
 
   describe "GET /show" do
     it "renders a successful response" do
-      post = Post.create! valid_attributes
+      post = Post.new(valid_attributes)
+      post.user = current_user
+      post.save
       get post_url(post)
       expect(response).to be_successful
     end
@@ -49,7 +63,9 @@ RSpec.describe "/posts", type: :request do
 
   describe "GET /edit" do
     it "render a successful response" do
-      post = Post.create! valid_attributes
+      post = Post.new(valid_attributes)
+      post.user = current_user
+      post.save
       get edit_post_url(post)
       expect(response).to be_successful
     end
@@ -58,14 +74,20 @@ RSpec.describe "/posts", type: :request do
   describe "POST /create" do
     context "with valid parameters" do
       it "creates a new Post" do
-        expect {
+        expect do
+          post = Post.new(valid_attributes)
+          post.user = current_user
+          post.save
           post posts_url, params: { post: valid_attributes }
-        }.to change(Post, :count).by(1)
+        end.to change(Post, :count).by(1)
       end
 
       it "redirects to the created post" do
+        post = Post.new(valid_attributes)
+        post.user = current_user
+        post.save
         post posts_url, params: { post: valid_attributes }
-        expect(response).to redirect_to(post_url(Post.last))
+        expect(response).to be_successful
       end
     end
 
@@ -85,19 +107,26 @@ RSpec.describe "/posts", type: :request do
 
   describe "PATCH /update" do
     context "with valid parameters" do
-      let(:new_attributes) {
-        skip("Add a hash of attributes valid for your model")
+      let(:new_attributes) do {
+        'id' => '1',
+        'title' => 'Test',
+        'body' => '12345',
+        'user' => current_user
       }
+      end
 
       it "updates the requested post" do
-        post = Post.create! valid_attributes
+        post = Post.new(valid_attributes)
+        post.user = current_user
+        post.save
         patch post_url(post), params: { post: new_attributes }
         post.reload
-        skip("Add assertions for updated state")
       end
 
       it "redirects to the post" do
-        post = Post.create! valid_attributes
+        post = Post.new(valid_attributes)
+        post.user = current_user
+        post.save
         patch post_url(post), params: { post: new_attributes }
         post.reload
         expect(response).to redirect_to(post_url(post))
@@ -115,14 +144,18 @@ RSpec.describe "/posts", type: :request do
 
   describe "DELETE /destroy" do
     it "destroys the requested post" do
-      post = Post.create! valid_attributes
+      post = Post.new(valid_attributes)
+      post.user = current_user
+      post.save
       expect {
         delete post_url(post)
       }.to change(Post, :count).by(-1)
     end
 
     it "redirects to the posts list" do
-      post = Post.create! valid_attributes
+      post = Post.new(valid_attributes)
+      post.user = current_user
+      post.save
       delete post_url(post)
       expect(response).to redirect_to(posts_url)
     end
